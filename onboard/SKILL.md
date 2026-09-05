@@ -94,8 +94,11 @@ Do not quiz the creator; read the repo. Fields marked * are required.
   `@react-three/fiber` -> `r3f`; `@babylonjs/core` -> `babylon.js`; `phaser`,
   `p5`, `aframe`, `playcanvas` map to their names; Godot/Unity web exports by
   their loader files; plain `<canvas>` with no library -> `canvas`; else `other`.
-- `ai_tools` *: the tools that built it. Include yourself (for example
-  `claude-code`). Add others only if the creator or commit history says so.
+- `models`: the models that wrote it. Include the one you are running as when
+  you know it (for example `claude-opus-5`). Add others only if the creator or
+  commit history says so. Optional.
+- `ai_tools`: the tools the model ran in. Include yourself (for example
+  `claude-code`). Add others only if the creator or commit history says so. Optional.
 - `devices` *: `desktop` when keyboard or mouse is used; add `mobile` when there is
   touch or pointer handling and a responsive viewport; add `vr` when WebXR
   immersive sessions are requested. At least one.
@@ -129,6 +132,7 @@ curl -s -X POST "$VELVEN/api/spaces" \
   "description": "Dodge debris in a decaying orbit. Arrow keys or swipe.",
   "space_type": "game",
   "engine": "three.js",
+  "models": ["claude-opus-5"],
   "ai_tools": ["claude-code"],
   "devices": ["desktop", "mobile"],
   "how_made": "One session with Claude Code. Three.js scene, hand-rolled physics.",
@@ -215,8 +219,12 @@ new tab and plays still count.
 - `space_type`: `game`, `world`, `tool`, `simulation`, `art`
 - `engine`: `three.js`, `r3f`, `babylon.js`, `playcanvas`, `a-frame`, `godot`,
   `unity`, `phaser`, `p5.js`, `canvas`, `marble`, `spline`, `other`
+- `models`: `claude-fable-5.1`, `claude-opus-5`, `claude-sonnet-5`, `gpt-6-astra`,
+  `gpt-5.6-sol`, `gemini-3.8-flash`, `muse-spark-1.3`, `grok-4.6`, `kimi-k3`,
+  `glm-5.3`, `other`
 - `ai_tools`: `claude-code`, `claude`, `cursor`, `codex`, `copilot`, `gemini`,
-  `windsurf`, `lovable`, `bolt`, `v0`, `replit`, `marble`, `other`
+  `windsurf`, `lovable`, `bolt`, `v0`, `replit`, `marble`, `other`, `muse-code`,
+  `grok-build`, `kimi-code`, `opencode`, `devin`
 - `devices`: `desktop`, `mobile`, `vr`
 
 The live list is always at `https://velven.ai/docs/agent.md` under "Allowed values".
