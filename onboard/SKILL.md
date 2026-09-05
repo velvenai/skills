@@ -1,6 +1,6 @@
 ---
-name: velven
-description: List a browser-playable space (game, world, tool, simulation, art) on Velven, the leaderboard for spaces built with AI. Use after deploying such a project when the creator says "list on Velven", "submit to Velven", "put this on Velven", "publish my game/space/world to the leaderboard", or asks how to get plays and a ranking for something built with AI. Handles the device-code login (the creator clicks one link and presses Approve), puts the ownership proof on the site, fills provenance from the project, submits the URL, and replies with the Velven link and badge.
+name: onboard
+description: List a browser-playable space (game, world, tool, simulation, art) on Velven, the leaderboard for spaces built with AI. Use after deploying such a project when the creator says "list on Velven", "submit to Velven", "put this on Velven", "publish my game/space/world to the leaderboard", asks how to get plays and a ranking for something built with AI, or wants to claim or verify a space that is already on Velven ("claim my space", "it says unclaimed", "verify I made this"). Handles the device-code login (the creator clicks one link and presses Approve), puts the ownership proof on the site, fills provenance from the project, submits the URL or claims the existing listing, and replies with the Velven link and badge.
 ---
 
 # Velven
@@ -146,8 +146,7 @@ Responses:
   submit again. Stop after three tries and tell the creator what is missing.
 - 401 `unauthorized`: delete `~/.config/velven/token`, repeat steps 1 and 2.
 - 409 `duplicate` with `url`: already listed; give the creator that link. If
-  that page says "unclaimed", Velven listed it itself: claim it with
-  `POST $VELVEN/api/spaces/verify` and `{"slug"}` using the same proof.
+  that page says "unclaimed", Velven listed it itself: claim it (next section).
 - 422 `invalid` with `issues:[{path,message}]`: fix those fields and retry once.
   A `url` issue can mean the host is not supported: Velven lists Vercel,
   Netlify, ChatGPT sites and Claude artifacts for now.
@@ -155,6 +154,44 @@ Responses:
 
 `GET $VELVEN/api/spaces?mine=1` with the bearer token lists what this creator
 already has: `[{slug,title,url,plays,upvotes,velven_url}]`.
+
+## Claiming a space Velven already listed
+
+Velven seeds the board with curated spaces it found itself. Those show as
+"unclaimed" at `https://velven.ai/s/SLUG` with no creator attached, and a
+`duplicate` error on submit points at one. Claiming moves it to the creator's
+handle and keeps its plays. Use this when the creator says a space of theirs is
+on Velven but not under their name, or asks to verify or claim it.
+
+1. Get a token (steps 1 and 2). The proof names the `handle` from the token.
+2. Put the proof on the site (step 4): the `velven` meta tag on Vercel, Netlify
+   and ChatGPT sites, or `HANDLE.velven.ai` under Allowed domains for a Claude
+   artifact. Wait until the live site serves it.
+3. Take the slug from the Velven page URL (`/s/orbit-dodger` -> `orbit-dodger`)
+   and call verify:
+
+```bash
+curl -s -X POST "$VELVEN/api/spaces/verify" \
+  -H "authorization: Bearer $TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"slug":"orbit-dodger"}'
+```
+
+Responses:
+
+- 200 `{"verified":true,"url"}`: done. `url` is now `https://velven.ai/HANDLE/SLUG`;
+  reply with it as in step 6.
+- 409 `unverified` with `instruction` and `snippet`: the proof is not on the live
+  site yet. Make exactly that change, deploy, wait a minute, call again. Stop
+  after three tries and tell the creator what is missing.
+- 409 `owned`: someone else already verified it. Tell the creator; they can
+  report it from the space page.
+- 404 `not_found`: no such slug. Check the URL the creator gave you.
+- 401 `unauthorized`: delete `~/.config/velven/token`, repeat steps 1 and 2.
+- 403 `blocked`: this account cannot claim spaces. Tell the creator, stop.
+
+The creator can also do it by hand at `https://velven.ai/s/SLUG/claim` once
+signed in; the page checks the same proof.
 
 ## Step 6: reply to the creator
 
