@@ -1,0 +1,36 @@
+name: Slack notifications
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  notify:
+    if: github.event.deleted == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/github-script@v7
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        with:
+          script: |
+            const { repository, after, head_commit } = context.payload;
+            const escape = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+            const base = repository.html_url;
+            const title = (head_commit?.message || '').split('\n')[0].slice(0, 120);
+            const text = '↑ <' + base + '|' + escape(repository.full_name) + '> · main · <' +
+              base + '/commit/' + after + '|' + after.slice(0, 7) + '>' +
+              (title ? ' · ' + escape(title) : '');
+            if (!process.env.SLACK_WEBHOOK_URL) throw new Error('SLACK_WEBHOOK_URL is not configured');
+            const response = await fetch(process.env.SLACK_WEBHOOK_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text, unfurl_links: false, unfurl_media: false }),
+              signal: AbortSignal.timeout(15000),
+            });
+            if (!response.ok || (await response.text()).trim() !== 'ok') {
+              throw new Error('Slack notification failed (HTTP ' + response.status + ')');
+            }
