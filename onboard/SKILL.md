@@ -41,6 +41,8 @@ curl -s -X POST "$VELVEN/api/agent/login" \
 ```
 
 Use your own name as `agent_name` (max 60 chars). Never print `device_code`.
+A 429 `rate_limited` means this address opened too many logins; wait a few
+minutes rather than retrying in a loop.
 
 ## Step 2: the creator approves, you poll
 
@@ -107,16 +109,19 @@ Do not quiz the creator; read the repo. Fields marked * are required.
   immersive sessions are requested. At least one.
 - `how_made`: two or three sentences on process: prompts, iterations, what was hard.
 - `source_url`: the repository if it is public, or the artifact link.
-- `screenshot_url`: an absolute image URL if the project ships one (og image or
-  a capture you made). Otherwise omit; Velven uses `og:image` or captures one.
+
+There is no picture field. After listing, Velven opens the space in its own
+browser, plays it, records a five-second clip and takes its first frame as the
+thumbnail; both land within a few minutes. The page's `og:image` stands in
+until then.
 
 ## Step 4: put the proof on the site
 
 Only a verified creator can list a space, so the proof goes on the site
 first. It names the creator's `handle` from the token response.
 
-- Vercel, Netlify, ChatGPT sites: add `<meta name="velven" content="@HANDLE">`
-  inside the page `<head>`. Deploy (or publish the ChatGPT page again) and
+- Vercel, Netlify, GitHub Pages, ChatGPT sites: add
+  `<meta name="velven" content="@HANDLE">` inside the page `<head>`. Deploy (or publish the ChatGPT page again) and
   wait until the live page serves it.
 - Claude artifacts published from a chat (`claude.ai/public/artifacts/…` or
   `*.claude.site`): you cannot add the tag yourself. Ask the creator to open the
@@ -165,11 +170,31 @@ Responses:
   that page says "unclaimed", Velven listed it itself: claim it (next section).
 - 422 `invalid` with `issues:[{path,message}]`: fix those fields and retry once.
   A `url` issue can mean the host is not supported: Velven lists Vercel,
-  Netlify, ChatGPT sites and Claude artifacts for now.
+  Netlify, GitHub Pages, ChatGPT sites and Claude artifacts for now.
 - 403 `blocked`: the URL or account cannot be listed. Tell the creator, stop.
 
 `GET $VELVEN/api/spaces?mine=1` with the bearer token lists what this creator
 already has: `[{slug,title,url,plays,upvotes,velven_url}]`.
+
+## Keeping the clip current
+
+Velven's background check re-records the clip when the deployed page changes.
+After a deploy that changes what the space looks like, or when the creator
+wants the clip to show something else, ask for a new take now:
+
+```bash
+curl -s -X POST "$VELVEN/api/spaces/recapture" \
+  -H "authorization: Bearer $TOKEN" \
+  -H "content-type: application/json" \
+  -d '{"slug":"orbit-dodger","note":"start after the title screen, show the boss"}'
+```
+
+`note` is optional, one line, at most 100 characters: what the clip should
+show. A creator gets two such retakes per space. Responses: 202
+`{"slug","status":"queued"}` (or already queued or running); 409
+`no_retakes_left`; 404 `not_found`; 503 `capture_off` (try later). The creator
+can also upload a clip of their own on the space's edit page; its first frame
+becomes the thumbnail.
 
 ## Claiming a space Velven already listed
 
@@ -181,8 +206,8 @@ on Velven but not under their name, or asks to verify or claim it.
 
 1. Get a token (steps 1 and 2). The proof names the `handle` from the token.
 2. Put the proof on the site (step 4): the `velven` meta tag on Vercel, Netlify,
-   ChatGPT sites and Claude Code artifacts, or `HANDLE.velven.ai` under Allowed
-   domains for a Claude artifact published from a chat. Wait until the live
+   GitHub Pages, ChatGPT sites and Claude Code artifacts, or `HANDLE.velven.ai`
+   under Allowed domains for a Claude artifact published from a chat. Wait until the live
    site serves it.
 3. Take the slug from the Velven page URL (`/s/orbit-dodger` -> `orbit-dodger`)
    and call verify:
@@ -220,8 +245,8 @@ Offer the badge for the README or the page:
 <a href="https://velven.ai/mara/orbit-dodger"><img src="https://velven.ai/badge/orbit-dodger" alt="On Velven"></a>
 ```
 
-Hosting note: Velven lists Vercel, Netlify, ChatGPT sites and Claude artifacts
-for now. The first three play in place (`embed_mode: "iframe"`). A Claude
+Hosting note: Velven lists Vercel, Netlify, GitHub Pages, ChatGPT sites and
+Claude artifacts for now. The first four play in place (`embed_mode: "iframe"`). A Claude
 artifact published from a chat plays in place once the creator publishes it and
 adds velven.ai under "Get embed code" → Allowed domains (HANDLE.velven.ai, from
 step 4, is the separate ownership proof; both go in the same list); otherwise it
