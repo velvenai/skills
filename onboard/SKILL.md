@@ -108,7 +108,7 @@ Do not quiz the creator; read the repo. Fields marked * are required.
   touch or pointer handling and a responsive viewport; add `vr` when WebXR
   immersive sessions are requested. At least one.
 - `how_made`: two or three sentences on process: prompts, iterations, what was hard.
-- `source_url`: the repository if it is public, or the artifact link.
+- `source_url`: the repository if it is public.
 
 There is no picture field. After listing, Velven opens the space in its own
 browser, plays it, records a five-second clip and takes its first frame as the
@@ -120,21 +120,8 @@ until then.
 Only a verified creator can list a space, so the proof goes on the site
 first. It names the creator's `handle` from the token response.
 
-- Vercel, Netlify, GitHub Pages, ChatGPT sites: add
-  `<meta name="velven" content="@HANDLE">` inside the page `<head>`. Deploy (or publish the ChatGPT page again) and
-  wait until the live page serves it.
-- Claude artifacts published from a chat (`claude.ai/public/artifacts/…` or
-  `*.claude.site`): you cannot add the tag yourself. Ask the creator to open the
-  artifact in Claude, share it with General access “Anyone with the link”, click
-  Publish → Get embed code, and add `HANDLE.velven.ai` next to `velven.ai` under
-  Allowed domains. Wait for them.
-- Claude Code artifacts (`claude.ai/code/artifact/…`, the ones you publish with
-  the Artifact tool): there are no allowed domains here. Put
-  `<meta name="velven" content="@HANDLE">` at the top of the artifact file and
-  publish it again. Then ask the creator to press Share on the artifact, set
-  General access to “Anyone with the link”, and set Shared version to Latest.
-  Velven opens the artifact in a browser to read the tag, so each check takes
-  about ten seconds. These artifacts always open in a new tab.
+Add `<meta name="velven" content="@HANDLE">` inside the page `<head>`. Deploy
+(or publish the ChatGPT page again) and wait until the live page serves it.
 
 ## Step 5: submit
 
@@ -170,7 +157,7 @@ Responses:
   that page says "unclaimed", Velven listed it itself: claim it (next section).
 - 422 `invalid` with `issues:[{path,message}]`: fix those fields and retry once.
   A `url` issue can mean the host is not supported: Velven lists Vercel,
-  Netlify, GitHub Pages, ChatGPT sites and Claude artifacts for now.
+  Netlify, GitHub Pages and ChatGPT sites for now.
 - 403 `blocked`: the URL or account cannot be listed. Tell the creator, stop.
 
 `GET $VELVEN/api/spaces?mine=1` with the bearer token lists what this creator
@@ -205,10 +192,8 @@ handle and keeps its plays. Use this when the creator says a space of theirs is
 on Velven but not under their name, or asks to verify or claim it.
 
 1. Get a token (steps 1 and 2). The proof names the `handle` from the token.
-2. Put the proof on the site (step 4): the `velven` meta tag on Vercel, Netlify,
-   GitHub Pages, ChatGPT sites and Claude Code artifacts, or `HANDLE.velven.ai`
-   under Allowed domains for a Claude artifact published from a chat. Wait until the live
-   site serves it.
+2. Put the proof on the site (step 4): the `velven` meta tag in the page's
+   `<head>`. Wait until the live site serves it.
 3. Take the slug from the Velven page URL (`/s/orbit-dodger` -> `orbit-dodger`)
    and call verify:
 
@@ -245,13 +230,9 @@ Offer the badge for the README or the page:
 <a href="https://velven.ai/mara/orbit-dodger"><img src="https://velven.ai/badge/orbit-dodger" alt="On Velven"></a>
 ```
 
-Hosting note: Velven lists Vercel, Netlify, GitHub Pages, ChatGPT sites and
-Claude artifacts for now. The first four play in place (`embed_mode: "iframe"`). A Claude
-artifact published from a chat plays in place once the creator publishes it and
-adds velven.ai under "Get embed code" → Allowed domains (HANDLE.velven.ai, from
-step 4, is the separate ownership proof; both go in the same list); otherwise it
-opens in a new tab and plays still count. A Claude Code artifact always opens in
-a new tab.
+Hosting note: Velven lists Vercel, Netlify, GitHub Pages and ChatGPT sites for
+now. All four play in place (`embed_mode: "iframe"`); a page whose own headers
+block framing opens in a new tab and plays still count.
 
 ## Values
 
