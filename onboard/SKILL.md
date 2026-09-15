@@ -157,7 +157,8 @@ Responses:
   that page says "unclaimed", Velven listed it itself: claim it (next section).
 - 422 `invalid` with `issues:[{path,message}]`: fix those fields and retry once.
   A `url` issue can mean the host is not supported: Velven lists Vercel,
-  Netlify, GitHub Pages and ChatGPT sites for now.
+  Netlify, GitHub Pages, Cloudflare (workers.dev and pages.dev addresses)
+  and ChatGPT sites for now.
 - 403 `blocked`: the URL or account cannot be listed. Tell the creator, stop.
 
 `GET $VELVEN/api/spaces?mine=1` with the bearer token lists what this creator
@@ -230,9 +231,11 @@ Offer the badge for the README or the page:
 <a href="https://velven.ai/mara/orbit-dodger"><img src="https://velven.ai/badge/orbit-dodger" alt="On Velven"></a>
 ```
 
-Hosting note: Velven lists Vercel, Netlify, GitHub Pages and ChatGPT sites for
-now. All four play in place (`embed_mode: "iframe"`); a page whose own headers
-block framing opens in a new tab and plays still count.
+Hosting note: Velven lists Vercel, Netlify, GitHub Pages, Cloudflare and
+ChatGPT sites for now (a Cloudflare site at its workers.dev or pages.dev
+address; a custom domain there is not recognised yet). All five play in place
+(`embed_mode: "iframe"`); a page whose own headers block framing opens in a new
+tab and plays still count.
 
 ## Values
 
