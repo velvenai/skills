@@ -244,7 +244,7 @@ tab and plays still count.
   `godot`, `unity`, `phaser`, `p5.js`, `canvas`, `webgl`, `marble`, `spline`, `other`
 - `models`: `claude-fable-5.1`, `claude-opus-5`, `claude-sonnet-5`, `gpt-6-astra`,
   `gpt-5.6-sol`, `gemini-3.8-flash`, `muse-spark-1.3`, `grok-4.6`, `kimi-k3`,
-  `glm-5.3`, `other`
+  `glm-5.3`, `jev`, `other`
 - `ai_tools`: `claude-code`, `claude`, `cursor`, `codex`, `copilot`, `gemini`,
   `windsurf`, `lovable`, `bolt`, `v0`, `replit`, `marble`, `other`, `muse-code`,
   `grok-build`, `kimi-code`, `opencode`, `devin`
