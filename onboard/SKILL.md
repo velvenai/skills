@@ -112,8 +112,9 @@ Do not quiz the creator; read the repo. Fields marked * are required.
 
 There is no picture field. After listing, Velven opens the space in its own
 browser, plays it, records a five-second clip and takes its first frame as the
-thumbnail; both land within a few minutes. The page's `og:image` stands in
-until then.
+thumbnail. Until they land, a few minutes later, the listing's `status` is
+`processing` and its page is the creator's alone; then it is `published` and
+on the board.
 
 ## Step 4: put the proof on the site
 
@@ -122,6 +123,10 @@ first. It names the creator's `handle` from the token response.
 
 Add `<meta name="velven" content="@HANDLE">` inside the page `<head>`. Deploy
 (or publish the ChatGPT page again) and wait until the live page serves it.
+The older proof, a `/.well-known/velven` file at the site's origin containing
+`@HANDLE`, is still accepted. A ChatGPT site must be published with "Who has
+access" set to "Anyone on the Internet": one that only its owner can open
+answers 401 and cannot be verified.
 
 ## Step 5: submit
 
@@ -147,8 +152,10 @@ JSON
 
 Responses:
 
-- 201 `{"slug","url","embed_mode","nudge","title"}`: listed on the creator's
-  page. `url` is `https://velven.ai/HANDLE/SLUG`. Go to step 6.
+- 201 `{"slug","url","status","embed_mode","nudge","title"}`: the page exists
+  at `url`, `https://velven.ai/HANDLE/SLUG`, and is the creator's alone while
+  `status` is `processing`; it goes on the board once the clip lands. Go to
+  step 6.
 - 409 `unverified` with `instruction` and `snippet`: the proof is not on the
   live site yet. Make exactly that change, deploy, wait a minute for caches,
   submit again. Stop after three tries and tell the creator what is missing.
@@ -239,15 +246,6 @@ tab and plays still count.
 
 ## Values
 
-- `space_type`: `game`, `world`, `tool`, `wonder`
-- `engine` (optional): `three.js`, `r3f`, `babylon.js`, `playcanvas`, `a-frame`,
-  `godot`, `unity`, `phaser`, `p5.js`, `canvas`, `webgl`, `marble`, `spline`, `other`
-- `models`: `claude-fable-5.1`, `claude-opus-5`, `claude-sonnet-5`, `gpt-6-astra`,
-  `gpt-5.6-sol`, `gemini-3.8-flash`, `muse-spark-1.3`, `grok-4.6`, `kimi-k3`,
-  `glm-5.3`, `jev`, `other`
-- `ai_tools`: `claude-code`, `claude`, `cursor`, `codex`, `copilot`, `gemini`,
-  `windsurf`, `lovable`, `bolt`, `v0`, `replit`, `marble`, `other`, `muse-code`,
-  `grok-build`, `kimi-code`, `opencode`, `devin`
-- `devices`: `desktop`, `mobile`, `vr`
-
-The live list is always at `https://velven.ai/docs/agent.md` under "Allowed values".
+The allowed values for `space_type`, `engine`, `models`, `ai_tools` and
+`devices` are at `https://velven.ai/docs/agent.md` under "Allowed values".
+Fetch that rather than guess; a value not on it is a 422.
