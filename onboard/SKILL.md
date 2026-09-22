@@ -152,7 +152,7 @@ JSON
 
 Responses:
 
-- 201 `{"slug","url","status","embed_mode","nudge","title"}`: the page exists
+- 201 `{"slug","url","status","title"}`: the page exists
   at `url`, `https://velven.ai/HANDLE/SLUG`, and is the creator's alone while
   `status` is `processing`; it goes on the board once the clip lands. Go to
   step 6.
@@ -166,6 +166,10 @@ Responses:
   A `url` issue can mean the host is not supported: Velven lists Vercel,
   Netlify, GitHub Pages, Cloudflare (workers.dev and pages.dev addresses)
   and ChatGPT sites for now.
+- 422 `unframeable` with `instruction` and `snippet`: every space plays inside
+  the Velven page, and this one's headers refuse it. Make exactly that change
+  (the header `Content-Security-Policy: frame-ancestors 'self' https://velven.ai`,
+  and no `X-Frame-Options`), deploy, submit again.
 - 403 `blocked`: the URL or account cannot be listed. Tell the creator, stop.
 
 `GET $VELVEN/api/spaces?mine=1` with the bearer token lists what this creator
@@ -230,9 +234,7 @@ signed in; the page checks the same proof.
 
 ## Step 6: reply to the creator
 
-Reply with the Velven `url`. If `nudge` is non-null, pass it on verbatim: it
-explains why the space opens in a new tab and how to make it play in place.
-Offer the badge for the README or the page:
+Reply with the Velven `url`. Offer the badge for the README or the page:
 
 ```html
 <a href="https://velven.ai/mara/orbit-dodger"><img src="https://velven.ai/badge/orbit-dodger" alt="On Velven"></a>
@@ -240,9 +242,11 @@ Offer the badge for the README or the page:
 
 Hosting note: Velven lists Vercel, Netlify, GitHub Pages, Cloudflare and
 ChatGPT sites for now (a Cloudflare site at its workers.dev or pages.dev
-address; a custom domain there is not recognised yet). All five play in place
-(`embed_mode: "iframe"`); a page whose own headers block framing opens in a new
-tab and plays still count.
+address; a custom domain there is not recognised yet). Every space plays
+inside the Velven page, so the site has to allow `https://velven.ai` to frame
+it: no `X-Frame-Options`, and any `Content-Security-Policy` must name it in
+`frame-ancestors`. A page that blocks framing is not listed until it does; the
+422 `unframeable` answer says where the header goes on that host.
 
 ## Values
 
