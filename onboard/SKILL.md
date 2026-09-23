@@ -1,6 +1,6 @@
 ---
 name: onboard
-description: List a browser-playable space (game, world, tool, wonder) on Velven, the leaderboard for spaces built with AI. Use after deploying such a project when the creator says "list on Velven", "submit to Velven", "put this on Velven", "publish my game/space/world to the leaderboard", asks how to get plays and a ranking for something built with AI, or wants to claim or verify a space that is already on Velven ("claim my space", "it says unclaimed", "verify I made this"). Handles the device-code login (the creator clicks one link and presses Approve), puts the ownership proof on the site, fills provenance from the project, submits the URL or claims the existing listing, and replies with the Velven link and badge.
+description: List a browser-playable space (game, world, tool, wonder) on Velven, the leaderboard for spaces built with AI. Use after deploying such a project when the creator says "list on Velven", "submit to Velven", "put this on Velven", "publish my game/space/world to the leaderboard", asks how to get plays and a ranking for something built with AI, or wants to claim or verify a space that is already on Velven ("claim my space", "it says unclaimed", "verify I made this"), or asks to "add a leaderboard", keep "high scores", "sign in players" or use the "Velven SDK" in a space. Handles the device-code login (the creator clicks one link and presses Approve), puts the ownership proof on the site, fills provenance from the project, submits the URL or claims the existing listing, adds the leaderboard and sign-in through the SDK when the space keeps a score, and replies with the Velven link and badge.
 ---
 
 # Velven
@@ -194,6 +194,50 @@ show. A creator gets two such retakes per space. Responses: 202
 `no_retakes_left`; 404 `not_found`; 503 `capture_off` (try later). The creator
 can also upload a clip of their own on the space's edit page; its first frame
 becomes the thumbnail.
+
+## Leaderboards and sign-in
+
+When the space keeps a score, or the creator asks for a leaderboard, high
+scores or sign-in, add the Velven SDK. Velven hosts the board and hands the
+rows back; the page draws its own board, Velven draws none.
+
+1. Load the script, or bundle it: `<script src="https://velven.ai/sdk/v1.js"></script>`
+   in the page's `<head>`, or `npm i @velven/sdk` and `import { Velven } from "@velven/sdk"`.
+2. Declare the boards beside the proof tag. No board is implicit.
+
+```html
+<script type="application/velven+json">
+{"boards":[{"key":"main","metric":"points","sort":"desc","min":0,"max":1000000,"cooldown":3}]}
+</script>
+```
+
+   Velven reads the block when the space is listed and on every check. Without
+   a deploy, `PUT $VELVEN/api/spaces/SLUG/boards` with `{"boards":[...]}` on the
+   bearer declares the same.
+3. Choose the tier. `trust: "server"`, the default, takes scores only from the
+   space's own server: get the secret with `POST $VELVEN/api/spaces/SLUG/secret`
+   (shown once; put it in the host's env, never in the page), have the page
+   fetch the player's token with `await Velven.signIn()` and send it to your
+   server, and have the server POST `$VELVEN/api/v1/scores` with the header
+   `x-velven-secret`, and `token`, `board`, `value`, `request_id` in the body.
+   The server can be on any host: Velven checks the secret and the token, not
+   where the post came from, so a static site (ChatGPT, GitHub Pages) uses a
+   function hosted elsewhere, with CORS allowing the page's origin.
+   `trust: "client"` takes `Velven.scores.submit(value)` from the page under
+   the board's range and cooldown, and every read is labelled as a client board.
+4. Draw the board from `await Velven.scores.top({ limit: 10 })` and
+   `await Velven.scores.around()`, each answering `{ ok, trust, rows }` with
+   `rank`, `value`, `meta`, `setAt` and the player's `handle` and `avatar`.
+5. Sign in from a button, never on load: `await Velven.signIn()` shows Velven's
+   card to a guest and answers `{ ok, user, token }`; `Velven.user` is already
+   set for a signed-in visitor. Every call resolves with `ok`; nothing throws.
+6. Test on localhost: `?velven_user=alice` is a signed-in player and the
+   board lives in memory, seeded, ranked by the page's block.
+7. Moderation on the bearer: `DELETE $VELVEN/api/spaces/SLUG/scores/ID` removes
+   an entry; `POST` and `DELETE $VELVEN/api/spaces/SLUG/bans` with `{"handle":"…"}`
+   ban and unban a player from every board of the space.
+
+The whole surface, codes and limits: `curl -s $VELVEN/docs/sdk.md`.
 
 ## Claiming a space Velven already listed
 
