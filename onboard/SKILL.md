@@ -231,6 +231,10 @@ rows back; the page draws its own board, Velven draws none.
 5. Sign in from a button, never on load: `await Velven.signIn()` shows Velven's
    card to a guest and answers `{ ok, user, token }`; `Velven.user` is already
    set for a signed-in visitor. Every call resolves with `ok`; nothing throws.
+   Identity and boards work inside Velven's page only: on the space's own
+   site `await Velven.ready()` answers `"site"` and every
+   identity and score call answers `unavailable`, so check the environment
+   before drawing the board there.
 6. Test on localhost: `?velven_user=alice` is a signed-in player and the
    board lives in memory, seeded, ranked by the page's block.
 7. Moderation on the bearer: `DELETE $VELVEN/api/spaces/SLUG/scores/ID` removes
