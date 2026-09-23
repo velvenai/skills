@@ -237,6 +237,10 @@ rows back; the page draws its own board, Velven draws none.
    before drawing the board there.
 6. Test on localhost: `?velven_user=alice` is a signed-in player and the
    board lives in memory, seeded, ranked by the page's block.
+   If the game saves progress to `localStorage`, swap those calls to
+   `Velven.data` (same `getItem`/`setItem`/`removeItem`/`clear`, after
+   `await Velven.ready()`), so the save follows a signed-in player; keep a
+   personal best on the board with `Velven.scores.mine()`, not in the save.
 7. Moderation on the bearer: `DELETE $VELVEN/api/spaces/SLUG/scores/ID` removes
    an entry; `POST` and `DELETE $VELVEN/api/spaces/SLUG/bans` with `{"handle":"…"}`
    ban and unban a player from every board of the space.
