@@ -164,8 +164,8 @@ Responses:
   that page says "unclaimed", Velven listed it itself: claim it (next section).
 - 422 `invalid` with `issues:[{path,message}]`: fix those fields and retry once.
   A `url` issue can mean the host is not supported: Velven lists Vercel,
-  Netlify, GitHub Pages, Cloudflare (workers.dev and pages.dev addresses)
-  and ChatGPT sites for now.
+  Netlify, GitHub Pages, Cloudflare (workers.dev and pages.dev addresses),
+  Replit (replit.app addresses) and ChatGPT sites for now.
 - 422 `unframeable` with `instruction` and `snippet`: every space plays inside
   the Velven page, and this one's headers refuse it. Make exactly that change
   (the header `Content-Security-Policy: frame-ancestors 'self' https://velven.ai`,
@@ -284,9 +284,10 @@ Reply with the Velven `url`. Offer the badge for the README or the page:
 <a href="https://velven.ai/mara/orbit-dodger"><img src="https://velven.ai/badge/orbit-dodger" alt="On Velven"></a>
 ```
 
-Hosting note: Velven lists Vercel, Netlify, GitHub Pages, Cloudflare and
-ChatGPT sites for now (a Cloudflare site at its workers.dev or pages.dev
-address; a custom domain there is not recognised yet). Every space plays
+Hosting note: Velven lists Vercel, Netlify, GitHub Pages, Cloudflare, Replit
+and ChatGPT sites for now (a Cloudflare site at its workers.dev or pages.dev
+address, a Replit app at its replit.app address; a custom domain on either is
+not recognised yet). Every space plays
 inside the Velven page, so the site has to allow `https://velven.ai` to frame
 it: no `X-Frame-Options`, and any `Content-Security-Policy` must name it in
 `frame-ancestors`. A page that blocks framing is not listed until it does; the
