@@ -1,10 +1,11 @@
 # Velven skills
 
 Agent Skills (skills.sh format) for [Velven](https://velven.ai), the community
-leaderboard for spaces built with AI.
+marketplace for spaces built with AI.
 
 - `onboard/` teaches a coding agent to list a space on Velven or claim one that is already there: device-code login,
-  ownership proof, submit or verify, badge; and to add a leaderboard and sign-in through the Velven SDK.
+  ownership proof, submit or verify, page text, badge, a move to a new address; and to add a leaderboard, sign-in
+  and saves (`Velven.data`) through the Velven SDK.
 
 Install:
 
