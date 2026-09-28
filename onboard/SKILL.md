@@ -88,8 +88,8 @@ npx @velven/cli publish ./dist --prod --yes --wait   # live on its Velven page, 
   reason, or not judged (a black screen, stuck loading, a start screen Velven
   never got past): add a `start` hint and publish again, or ask for a review
   from the printed link.
-- Velven keeps looking at a space once it is live, and takes one that breaks
-  its content policy off Velven.
+- Each version gets a look after it goes live, and a space can be taken off
+  Velven when a look or a report finds it breaks the content policy.
 - `npx @velven/cli versions` lists versions (`*` is live);
   `npx @velven/cli rollback 3` puts a version that was live before back live.
 - `npx @velven/cli dev ./dist` plays the folder from `localhost` inside
