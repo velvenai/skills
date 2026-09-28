@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.velvenai/velven",
   "title": "Velven",
-  "description": "Publish browser games, worlds and toys built with AI to Velven's hosting, and manage them.",
-  "version": "1.0.0",
+  "description": "Publish browser games, worlds, tools and wonders built with AI to Velven's hosting, and manage them.",
+  "version": "1.0.1",
   "websiteUrl": "https://velven.ai/docs",
   "repository": {
     "url": "https://github.com/velvenai/skills",
