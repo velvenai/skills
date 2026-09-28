@@ -83,9 +83,8 @@ npx @velven/cli publish ./dist --prod --yes --wait   # live on its Velven page, 
   A version whose files need a closer look is `publishing` (waiting on Velven
   to publish it) for under a minute; `--wait` waits here for the answer.
 - Refused: a program, an installer or a coin miner in the folder (the CLI
-  stops before uploading anything, exit 4), or an outside address on a list
-  of known malware and phishing. The sentence names the file: remove it and
-  publish again. A version that waited can also come back refused with the
+  stops before uploading anything, exit 4). The sentence names the file:
+  remove it and publish again. A version that waited can also come back refused with the
   reason, or not judged (a black screen, stuck loading, a start screen Velven
   never got past): add a `start` hint and publish again, or ask for a review
   from the printed link.
