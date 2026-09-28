@@ -1,0 +1,20 @@
+{
+  "name": "velven",
+  "interface": {
+    "displayName": "Velven"
+  },
+  "plugins": [
+    {
+      "name": "velven",
+      "source": {
+        "source": "local",
+        "path": "./plugins/velven"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Coding"
+    }
+  ]
+}

@@ -1,26 +1,127 @@
 ---
 name: onboard
-description: List a browser-playable space (game, world, tool, wonder) on Velven, the community marketplace for spaces built with AI. Use after deploying such a project when the creator says "list on Velven", "submit to Velven", "put this on Velven", "publish my game/space/world to the leaderboard", asks how to get plays and a ranking for something built with AI, or wants to claim or verify a space that is already on Velven ("claim my space", "it says unclaimed", "verify I made this"), or asks to "add a leaderboard", keep "high scores", "sign in players", "save progress" across devices or use the "Velven SDK" in a space. Handles the device-code login (the creator clicks one link and presses Approve), puts the ownership proof on the site, fills provenance and the page text from the project, submits the URL or claims the existing listing, adds the leaderboard, sign-in and saves through the SDK when the space keeps a score or progress, and replies with the Velven link and badge.
+description: Put a browser-playable space (game, world, tool, wonder) built with AI on Velven, the community marketplace and host for such spaces. Use when the creator says "publish this", "put it online", "host my game", "deploy to Velven", "list on Velven", "submit to Velven", "put this on Velven", asks how to get plays and a ranking for something built with AI, wants to claim a space that is already on Velven ("claim my space", "it says unclaimed", "I have a claim token"), or asks to "add a leaderboard", "achievements", "high scores", "sign in players", "save progress", "multiplayer rooms" or use the "Velven SDK" in a space. Publishes the folder with `velven publish` (a private preview, then live with `--prod` after Velven's safety check) or the Velven MCP server's publish tool, works before the creator has an account (an unlisted page with a claim token), fills the listing from the project, links an already deployed site as the side path, adds the SDK's features, and replies with the Velven link.
 ---
 
 # Velven
 
 Velven (https://velven.ai) is the community marketplace for spaces built with AI.
-A space is anything interactive in a browser. It stays where it is hosted; Velven
-lists it, counts plays and ranks it. You list it for the creator: no API key is
-ever copied by hand. Full docs: `curl -s https://velven.ai/docs/agent.md`.
+A space is anything interactive in a browser. Velven hosts it: you publish the
+folder, Velven checks it for safety, and it plays on its own Velven page with
+the SDK added. A space already deployed elsewhere can be linked instead (the side
+path, below). You do this for the creator: no API key is ever copied by hand.
+Full docs: `curl -s https://velven.ai/llms.txt`.
 
 ## When to use
 
-- You just deployed a browser-playable project that was built with AI (any tool)
-  and the creator wants it listed, or asks about a leaderboard, plays or ranking.
+- You built a browser-playable project with AI (any tool) and the creator wants
+  it online, on Velven, or asks about a leaderboard, plays or ranking.
 - Not for: backend services, CLIs, non-interactive pages, or work not built with AI.
+
+## Publish on Velven (the main path)
+
+Pick the way in:
+
+- **A terminal and the project folder** (Claude Code, Codex, Cursor, any shell):
+  the CLI, `npx @velven/cli` (Node 20+, no install needed).
+- **The Velven MCP server is connected** (its tools are `publish`, `my_spaces`,
+  `versions`, `rollback`, `search_docs`): its `publish` tool takes one HTML page
+  (`html`) or a few files (`files`, path to text, or `{"base64": "..."}` for a
+  binary), 3 MB in all. Use the CLI for anything bigger. Server:
+  `https://mcp.velven.ai/mcp`.
+
+### 1. The listing: velven.json
+
+Fill it from the project; do not quiz the creator. Required: `title`, `type`,
+`devices` (the rules are in "Step 3: fill provenance" under the side path, where
+`type` is called `space_type`). Ask only for what the project cannot tell you. Write it in the
+folder you publish (the build output, such as `dist/`, when there is a build
+step: build first):
+
+```json
+{
+  "title": "Orbit Dodger",
+  "type": "game",
+  "devices": ["desktop", "mobile"],
+  "description": "Dodge debris in a decaying orbit. Arrow keys or swipe.",
+  "engine": "three.js",
+  "ai_tools": ["claude-code"],
+  "models": ["claude-opus-5"]
+}
+```
+
+Optional hosting keys: `entry` (the page to open when not `index.html`), `spa`
+(`true` for client-side routing), `sdk` (`false` when the page bundles
+`@velven/sdk` itself; otherwise Velven adds the script tag), `start` (how the
+safety check gets past a start screen: `{"click": "Play"}`, `{"key": "Space"}`
+or `{"click": [x, y]}`), and `boards`, `achievements`, `stats`, `toasts` (SDK
+section). The CLI writes `space` (or `claim`) itself; never edit those. A
+`.velvenignore` leaves files out; dotfiles and `node_modules` always are.
+
+### 2. Preview, then live
+
+```bash
+npx @velven/cli publish ./dist --yes --json          # a private preview: prints previewUrl
+npx @velven/cli publish ./dist --prod --yes --wait   # live once Velven's safety check passes
+```
+
+- Plain `publish` makes a **private preview** (24 hours, only the creator can
+  open it; scores and saves made there go to a sandbox). Show the creator the
+  link. Go live with `--prod` when the creator says so.
+- `--prod` uploads only what changed, runs the safety check (sexual content,
+  scams, login or wallet forms, gambling, malware) and puts it live at
+  `https://velven.ai/HANDLE/SLUG`. `--wait` blocks for the verdict.
+- Refused: the reason is printed. Could not judge (a black screen, stuck
+  loading, a start screen the check never passed): add a `start` hint and
+  publish again, or ask for a review from the printed link.
+- `npx @velven/cli versions` lists versions (`*` is live);
+  `npx @velven/cli rollback 3` puts a version that was live before back live.
+- `npx @velven/cli dev ./dist` plays the folder from `localhost` inside
+  Velven's player, with SDK data in the sandbox (`npx @velven/cli reset`
+  wipes it).
+- Exit codes: 2 a field or command mistake, 3 needs sign-in, 4 refused (not
+  yours, too large), 5 rate limited, 6 the check refused it or could not judge.
+
+### 3. With or without an account
+
+- **Signed in** (`npx @velven/cli login`: it prints a link, the creator presses
+  Approve, the token is saved in `~/.config/velven/auth.json`): every publish
+  goes to the creator's space; the first writes `"space"` into velven.json.
+- **Not signed in**: `publish` still works. It makes an **unlisted page**: a
+  real Velven page with every SDK feature, live after the check, but on no
+  list. The answer holds the page, a **claim token** and a **claim link**, and
+  the CLI saves the token in velven.json as `"claim"`, so the next publish
+  updates the same page. Tell the creator all three, and that the page is
+  deleted 7 days after its first publish unless claimed, and show the line
+  "By publishing you agree to Velven's Terms: velven.ai/terms". `--prod` needs
+  sign-in.
+- **Claiming it**: open the claim link and sign in, or run
+  `npx @velven/cli login` and publish again from the folder (the CLI claims it
+  and swaps `"claim"` for `"space"`). It then goes on Velven under the handle.
+- In CI: `VELVEN_TOKEN` (a token from `velven login`), then
+  `velven publish --prod --yes --wait`.
+
+With the MCP server: `publish` without `prod` makes a preview (signed in) or an
+unlisted page (not signed in; the answer carries the claim token: show it and
+the claim link). `prod: true` goes live after the check and needs sign-in:
+calling `my_spaces` makes the app ask the creator to sign in to Velven. Never
+ask for a token or password in chat.
+
+A space already listed at a live URL moves onto hosting by publishing to it:
+put `"space": "SLUG"` in velven.json and publish with `--prod`; its plays,
+boards and saves stay.
+
+## Link a live URL (the side path)
+
+When the creator wants the space to stay where it is deployed (Vercel,
+Netlify, GitHub Pages, Cloudflare, Replit, Firebase, ChatGPT sites), list its
+address instead. This path uses the agent API with its own token.
 
 Set `VELVEN=https://velven.ai` (or the base URL of a self-hosted instance).
 Your shell may not keep variables between commands, so set `VELVEN` and
 `TOKEN=$(cat ~/.config/velven/token)` in each command that uses them.
 
-## Step 1: reuse or obtain a token
+### Step 1: reuse or obtain a token
 
 Tokens live at `~/.config/velven/token` (mode 600). Check first:
 
@@ -50,7 +151,7 @@ Use your own name as `agent_name` (max 60 chars). A 429 `rate_limited` means
 this address opened too many logins; wait 15 minutes rather than retrying in
 a loop.
 
-## Step 2: the creator approves, you poll
+### Step 2: the creator approves, you poll
 
 Tell the creator, in one short message:
 
@@ -87,7 +188,7 @@ On 200 the body is `{"access_token":"vlv_…","token_type":"bearer","handle":"ma
 "profile_url":"…"}`. The token is returned exactly once and lasts 90 days; a
 later 401 means it expired or was revoked, so start over at step 1.
 
-## Step 3: fill provenance from the project
+### Step 3: fill provenance from the project
 
 Do not quiz the creator; read the repo. Fields marked * are required.
 
@@ -147,7 +248,7 @@ thumbnail. Until they land, a few minutes later, the listing's `status` is
 `processing` and its page is the creator's alone; then it is `published` and
 on the board.
 
-## Step 4: put the proof on the site
+### Step 4: put the proof on the site
 
 Only a verified creator can list a space, so the proof goes on the site
 first. It names the creator's `handle` from the token response.
@@ -158,7 +259,7 @@ the live page serves it. A ChatGPT site must be published with "Who has
 access" set to "Anyone on the Internet": one that only its owner can open
 answers 401 and cannot be verified.
 
-## Step 5: submit
+### Step 5: submit
 
 ```bash
 curl -s -X POST "$VELVEN/api/spaces" \
@@ -231,7 +332,7 @@ Responses:
 `GET $VELVEN/api/spaces?mine=1` with the bearer token lists what this creator
 already has: `[{slug,title,url,plays,upvotes,velven_url}]`.
 
-## Step 6: reply to the creator
+### Step 6: reply to the creator
 
 Reply with the Velven `url`. Offer the badge for the README or the page:
 
@@ -293,21 +394,47 @@ curl -s -X POST "$VELVEN/api/spaces/SLUG/move" \
   same; issue a new one (SDK section, step 3) only if the server itself moved
   to a host that does not have it.
 
-## Leaderboards, sign-in and saves
+## The Velven SDK: sign-in, leaderboards, saves and more
 
 When the space keeps a score or progress, or the creator asks for a
-leaderboard, high scores, sign-in or saves, add the Velven SDK. Velven hosts
-the board and hands the rows back; the page draws its own board, Velven draws
-none. Sign-in and boards work only once the space is published and claimed.
+leaderboard, high scores, sign-in, saves, achievements or multiplayer, add the
+Velven SDK. Velven stores the data and hands it back. A board is drawn by the
+page, by Velven on the space's page (`"display": "page"`), or both
+(`"display": "both"`); the default is `"game"`, the page's own. Sign-in and
+boards work once a linked space is published and claimed; a hosted space has
+them from its first live version (unlisted pages too, though their
+achievements add no points), and a preview or `velven dev` writes to a
+sandbox.
 
-1. Load the script, or bundle it: `<script src="https://velven.ai/sdk/v1.js"></script>`
+What else the SDK has, at a glance (details: `curl -s $VELVEN/docs/sdk.md`):
+
+- Achievements and stats: declared like boards (`achievements`, `stats` in
+  velven.json or the block); `Velven.achievements.unlock(id)`,
+  `Velven.stats.add(id, n)` / `set(id, n)`. Each achievement is worth 10 points
+  on the player's profile on a listed, claimed space (none on an unlisted page,
+  none for the creator's own unlocks on their own space); Velven shows an
+  unlock toast (`"toasts": false` turns it off) and an Achievements section on
+  the space page.
+- Player content (levels, replays, maps): `Velven.content.upload(...)`,
+  `list`, `download`, `remove`; attach one to a score with
+  `submit(value, { contentId })`.
+- Rooms (2 to 16 players over WebSockets): `Velven.rooms.create(...)`,
+  `join`, `send`, `chat`, `inviteLink()`.
+- Friends and presence: friends-only board reads (`friends: true` on `top` and
+  `around`), `Velven.presence.set({ status })`.
+
+1. Load the script, or bundle it. A space hosted on Velven gets the script tag
+   added to its entry page by itself (unless velven.json says `"sdk": false`).
+   Elsewhere: `<script src="https://velven.ai/sdk/v1.js"></script>`
    in the page's `<head>`, or `npm i @velven/sdk` and `import { Velven } from "@velven/sdk"`.
    The SDK must run in the document at the listed URL, the one Velven frames.
    A game inside an iframe of the page's own (some ChatGPT sites keep theirs
    under a shell) cannot reach Velven, and its sign-in and score calls answer
    `unavailable`. Before promising a board there, check on the Velven page
    that `await Velven.ready()` answers `"velven"`.
-2. Declare the boards beside the proof tag. No board is implicit.
+2. Declare the boards. No board is implicit. A hosted space puts `boards` in
+   velven.json (each publish syncs them); a linked one puts the block beside
+   the proof tag:
 
 ```html
 <script type="application/velven+json">
@@ -420,6 +547,10 @@ if (old.every((k) => Velven.data.getItem(k) !== null)) {
 The whole surface, codes and limits: `curl -s $VELVEN/docs/sdk.md`.
 
 ## Claiming a space Velven already listed
+
+An unlisted page published without an account is claimed with its token
+(see "With or without an account" above): the claim link, or `velven login` then
+`velven publish` from the folder holding `"claim"` in velven.json.
 
 Velven seeds the board with curated spaces it found itself. Those show as
 "unclaimed" at `https://velven.ai/s/SLUG` with no creator attached, and a

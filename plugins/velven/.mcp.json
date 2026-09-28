@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "velven": {
+      "type": "http",
+      "url": "https://mcp.velven.ai/mcp"
+    }
+  }
+}

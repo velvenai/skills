@@ -1,0 +1,9 @@
+{
+  "name": "velven",
+  "version": "1.0.0",
+  "mcpServers": {
+    "velven": {
+      "httpUrl": "https://mcp.velven.ai/mcp"
+    }
+  }
+}
