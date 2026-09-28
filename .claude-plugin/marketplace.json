@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Velven's plugin for coding agents: publish browser games, worlds, tools and wonders built with AI to Velven, and add its SDK.",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "velven",
       "source": "./plugins/velven",
-      "description": "Publish a browser space to Velven's hosting (a private preview, then live after the safety check), claim it, and add sign-in, leaderboards, saves and achievements with the Velven SDK. Bundles the onboard skill and Velven's MCP server.",
-      "version": "1.0.0",
+      "description": "Publish a browser space to Velven's hosting (a private preview, then live in seconds), claim it, and add sign-in, leaderboards, saves and achievements with the Velven SDK. Bundles the onboard skill and Velven's MCP server.",
+      "version": "1.1.0",
       "author": {
         "name": "Velven",
         "url": "https://velven.ai"

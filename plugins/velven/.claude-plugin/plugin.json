@@ -1,7 +1,7 @@
 {
   "name": "velven",
-  "version": "1.0.0",
-  "description": "Publish a browser space to Velven's hosting (a private preview, then live after the safety check), claim it, and add sign-in, leaderboards, saves and achievements with the Velven SDK.",
+  "version": "1.1.0",
+  "description": "Publish a browser space to Velven's hosting (a private preview, then live in seconds), claim it, and add sign-in, leaderboards, saves and achievements with the Velven SDK.",
   "author": {
     "name": "Velven",
     "url": "https://velven.ai"

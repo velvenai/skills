@@ -1,6 +1,6 @@
 {
   "name": "velven",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Publish browser games, worlds, tools and wonders built with AI to Velven, and add its SDK.",
   "author": {
     "name": "Velven",
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Velven",
     "shortDescription": "Publish browser games and worlds built with AI to Velven",
-    "longDescription": "Publish a browser space to Velven's hosting from a folder or a single page: a private preview first, then live on its own Velven page after the safety check. Works before you have an account (an unlisted page with a claim token). Adds sign-in, leaderboards, saves, achievements and rooms through the Velven SDK.",
+    "longDescription": "Publish a browser space to Velven's hosting from a folder or a single page: a private preview first, then live on its own Velven page in seconds. Works before you have an account (an unlisted page with a claim token). Adds sign-in, leaderboards, saves, achievements and rooms through the Velven SDK.",
     "developerName": "Velven",
     "category": "Coding",
     "capabilities": [

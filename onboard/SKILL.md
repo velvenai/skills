@@ -1,15 +1,15 @@
 ---
 name: onboard
-description: Put a browser-playable space (game, world, tool, wonder) built with AI on Velven, the community marketplace and host for such spaces. Use when the creator says "publish this", "put it online", "host my game", "deploy to Velven", "list on Velven", "submit to Velven", "put this on Velven", asks how to get plays and a ranking for something built with AI, wants to claim a space that is already on Velven ("claim my space", "it says unclaimed", "I have a claim token"), or asks to "add a leaderboard", "achievements", "high scores", "sign in players", "save progress", "multiplayer rooms" or use the "Velven SDK" in a space. Publishes the folder with `velven publish` (a private preview, then live with `--prod` after Velven's safety check) or the Velven MCP server's publish tool, works before the creator has an account (an unlisted page with a claim token), fills the listing from the project, links an already deployed site as the side path, adds the SDK's features, and replies with the Velven link.
+description: Put a browser-playable space (game, world, tool, wonder) built with AI on Velven, the community marketplace and host for such spaces. Use when the creator says "publish this", "put it online", "host my game", "deploy to Velven", "list on Velven", "submit to Velven", "put this on Velven", asks how to get plays and a ranking for something built with AI, wants to claim a space that is already on Velven ("claim my space", "it says unclaimed", "I have a claim token"), or asks to "add a leaderboard", "achievements", "high scores", "sign in players", "save progress", "multiplayer rooms" or use the "Velven SDK" in a space. Publishes the folder with `velven publish` (a private preview, then live in seconds with `--prod`) or the Velven MCP server's publish tool, works before the creator has an account (an unlisted page with a claim token), fills the listing from the project, links an already deployed site as the side path, adds the SDK's features, and replies with the Velven link.
 ---
 
 # Velven
 
 Velven (https://velven.ai) is the community marketplace for spaces built with AI.
 A space is anything interactive in a browser. Velven hosts it: you publish the
-folder, Velven checks it for safety, and it plays on its own Velven page with
-the SDK added. A space already deployed elsewhere can be linked instead (the side
-path, below). You do this for the creator: no API key is ever copied by hand.
+folder, and seconds later it plays on its own Velven page with the SDK added.
+A space already deployed elsewhere can be linked instead (the side path,
+below). You do this for the creator: no API key is ever copied by hand.
 Full docs: `curl -s https://velven.ai/llms.txt`.
 
 ## When to use
@@ -27,7 +27,8 @@ Pick the way in:
 - **The Velven MCP server is connected** (its tools are `publish`, `my_spaces`,
   `versions`, `rollback`, `search_docs`): its `publish` tool takes one HTML page
   (`html`) or a few files (`files`, path to text, or `{"base64": "..."}` for a
-  binary), 3 MB in all. Use the CLI for anything bigger. Server:
+  binary), 3 MB in all, and `thumbnail` and `clip` as velven.json does (the
+  path of a file sent). Use the CLI for anything bigger. Server:
   `https://mcp.velven.ai/mcp`.
 
 ### 1. The listing: velven.json
@@ -52,35 +53,53 @@ step: build first):
 
 Optional hosting keys: `entry` (the page to open when not `index.html`), `spa`
 (`true` for client-side routing), `sdk` (`false` when the page bundles
-`@velven/sdk` itself; otherwise Velven adds the script tag), `start` (how the
-safety check gets past a start screen: `{"click": "Play"}`, `{"key": "Space"}`
-or `{"click": [x, y]}`), and `boards`, `achievements`, `stats`, `toasts` (SDK
-section). The CLI writes `space` (or `claim`) itself; never edit those. A
-`.velvenignore` leaves files out; dotfiles and `node_modules` always are.
+`@velven/sdk` itself; otherwise Velven adds the script tag), `start` (how
+Velven gets past a start screen when it looks at the space and records its
+clip: `{"click": "Play"}`, `{"key": "Space"}` or `{"click": [x, y]}`),
+`thumbnail` and `clip` (below), and `boards`, `achievements`, `stats`,
+`toasts` (SDK section). The CLI writes `space` (or `claim`) itself; never
+edit those. A `.velvenignore` leaves files out; dotfiles and `node_modules`
+always are.
+
+The tile's picture and hover clip: `thumbnail` is the path of a JPEG, PNG or
+WebP in the folder (up to 2 MB), `clip` of an MP4 or WebM (up to 3 MB; five
+seconds at 480p is right; without a `thumbnail` its first frame is the
+picture). Name either and Velven records nothing for the tile; name neither and
+Velven records a clip once the space is live. A later version that names
+neither keeps the space's.
 
 ### 2. Preview, then live
 
 ```bash
 npx @velven/cli publish ./dist --yes --json          # a private preview: prints previewUrl
-npx @velven/cli publish ./dist --prod --yes --wait   # live once Velven's safety check passes
+npx @velven/cli publish ./dist --prod --yes --wait   # live on its Velven page, usually in seconds
 ```
 
 - Plain `publish` makes a **private preview** (24 hours, only the creator can
   open it; scores and saves made there go to a sandbox). Show the creator the
   link. Go live with `--prod` when the creator says so.
-- `--prod` uploads only what changed, runs the safety check (sexual content,
-  scams, login or wallet forms, gambling, malware) and puts it live at
-  `https://velven.ai/HANDLE/SLUG`. `--wait` blocks for the verdict.
-- Refused: the reason is printed. Could not judge (a black screen, stuck
-  loading, a start screen the check never passed): add a `start` hint and
-  publish again, or ask for a review from the printed link.
+- `--prod` uploads only what changed and puts the version live at
+  `https://velven.ai/HANDLE/SLUG` in the same request, usually within seconds.
+  A version whose files need a closer look is `publishing` (waiting on Velven
+  to publish it) for under a minute; `--wait` waits here for the answer.
+- Refused: a program, an installer or a coin miner in the folder (the CLI
+  stops before uploading anything, exit 4), or an outside address on a list
+  of known malware and phishing. The sentence names the file: remove it and
+  publish again. A version that waited can also come back refused with the
+  reason, or not judged (a black screen, stuck loading, a start screen Velven
+  never got past): add a `start` hint and publish again, or ask for a review
+  from the printed link.
+- Velven keeps looking at a space once it is live, and takes one that breaks
+  its content policy off Velven.
 - `npx @velven/cli versions` lists versions (`*` is live);
   `npx @velven/cli rollback 3` puts a version that was live before back live.
 - `npx @velven/cli dev ./dist` plays the folder from `localhost` inside
   Velven's player, with SDK data in the sandbox (`npx @velven/cli reset`
   wipes it).
-- Exit codes: 2 a field or command mistake, 3 needs sign-in, 4 refused (not
-  yours, too large), 5 rate limited, 6 the check refused it or could not judge.
+- Exit codes: 2 a field or command mistake (a bad `thumbnail` or `clip`
+  included), 3 needs sign-in, 4 refused (not yours, too large, a program or
+  miner in the folder), 5 rate limited, 6 Velven refused the version or, with
+  `--wait`, could not judge it.
 
 ### 3. With or without an account
 
@@ -88,7 +107,7 @@ npx @velven/cli publish ./dist --prod --yes --wait   # live once Velven's safety
   Approve, the token is saved in `~/.config/velven/auth.json`): every publish
   goes to the creator's space; the first writes `"space"` into velven.json.
 - **Not signed in**: `publish` still works. It makes an **unlisted page**: a
-  real Velven page with every SDK feature, live after the check, but on no
+  real Velven page with every SDK feature, live in seconds, but on no
   list. The answer holds the page, a **claim token** and a **claim link**, and
   the CLI saves the token in velven.json as `"claim"`, so the next publish
   updates the same page. Tell the creator all three, and that the page is
@@ -103,7 +122,7 @@ npx @velven/cli publish ./dist --prod --yes --wait   # live once Velven's safety
 
 With the MCP server: `publish` without `prod` makes a preview (signed in) or an
 unlisted page (not signed in; the answer carries the claim token: show it and
-the claim link). `prod: true` goes live after the check and needs sign-in:
+the claim link). `prod: true` goes live in seconds and needs sign-in:
 calling `my_spaces` makes the app ask the creator to sign in to Velven. Never
 ask for a token or password in chat.
 

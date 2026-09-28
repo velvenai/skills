@@ -4,10 +4,9 @@ Agent Skills (skills.sh format), plugins and the MCP server for [Velven](https:/
 marketplace and host for spaces built with AI.
 
 - `onboard/` teaches a coding agent to publish a space on Velven: `velven publish` makes a private preview, `--prod`
-  puts it live after Velven's safety check, and it works before the creator has an account (an unlisted page with a
-  claim token to keep it). It fills `velven.json` from the project, links an already deployed site as the side path,
-  claims a space that is already on Velven, and adds sign-in, leaderboards, saves, achievements and rooms through the
-  Velven SDK.
+  puts it live in seconds, and it works before the creator has an account (an unlisted page with a claim token to keep
+  it). It fills `velven.json` from the project, links an already deployed site as the side path, claims a space that is
+  already on Velven, and adds sign-in, leaderboards, saves, achievements and rooms through the Velven SDK.
 - `plugins/velven/` is the same skill with Velven's MCP server, as a plugin for Claude Code and Codex.
 
 ## Install
@@ -31,10 +30,11 @@ Gemini CLI, the MCP server: `gemini extensions install https://github.com/velven
 
 ## The MCP server
 
-`https://mcp.velven.ai/mcp`, Streamable HTTP. Tools: `publish` (one HTML page or a few files, 3 MB in all: a preview,
-or live with `prod: true`), `my_spaces`, `versions`, `rollback` and `search_docs`. Without signing in, `publish` makes an
-unlisted page and answers its claim token; the account tools ask you to sign in to Velven (OAuth). Any client that takes
-a remote MCP server adds it by that address, for example:
+`https://mcp.velven.ai/mcp`, Streamable HTTP. Tools: `publish` (one HTML page or a few files, 3 MB in all, with an
+optional `thumbnail` and `clip` among them: a preview, or live in seconds with `prod: true`), `my_spaces`, `versions`,
+`rollback` and `search_docs`. Without signing in, `publish` makes an unlisted page and answers its claim token; the
+account tools ask you to sign in to Velven (OAuth). Any client that takes a remote MCP server adds it by that address,
+for example:
 
 ```
 claude mcp add --transport http velven https://mcp.velven.ai/mcp
