@@ -61,12 +61,19 @@ clip: `{"click": "Play"}`, `{"key": "Space"}` or `{"click": [x, y]}`),
 edit those. A `.velvenignore` leaves files out; dotfiles and `node_modules`
 always are.
 
-The tile's picture and hover clip: `thumbnail` is the path of a JPEG, PNG or
-WebP in the folder (up to 2 MB), `clip` of an MP4 or WebM (up to 3 MB; five
-seconds at 480p is right; without a `thumbnail` its first frame is the
-picture). Name either and Velven records nothing for the tile; name neither and
-Velven records a clip once the space is live. A later version that names
-neither keeps the space's.
+The tile's picture and hover clip are optional:
+
+- `thumbnail`: the path of a JPEG, PNG or WebP in the folder. Up to 2 MB and
+  4096 pixels on each side.
+- `clip`: the path of an MP4 or WebM in the folder. Up to 3 MB and 5 to 10
+  seconds long. Without a `thumbnail`, its first frame is the picture.
+
+The CLI refuses a clip outside 5 to 10 seconds. If the file doesn't say its
+length, Velven measures it once the space is live. It keeps the first 10
+seconds of a longer clip and drops a shorter one. Both files must show the
+space itself, not something unrelated or misleading. Name either one and
+Velven records nothing for the tile. Name neither and Velven records a clip
+once the space is live. A later version that names neither keeps the space's.
 
 ### 2. Preview, then live
 
