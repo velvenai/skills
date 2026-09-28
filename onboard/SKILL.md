@@ -80,8 +80,8 @@ npx @velven/cli publish ./dist --prod --yes --wait   # live on its Velven page, 
   link. Go live with `--prod` when the creator says so.
 - `--prod` uploads only what changed and puts the version live at
   `https://velven.ai/HANDLE/SLUG` in the same request, usually within seconds.
-  A version whose files need a closer look is `publishing` (waiting on Velven
-  to publish it) for under a minute; `--wait` waits here for the answer.
+  Sometimes a version is `publishing` (waiting on Velven
+  to publish it) instead, usually for under a minute; `--wait` waits here for the answer.
 - Refused: a program, an installer or a coin miner in the folder (the CLI
   stops before uploading anything, exit 4). The sentence names the file:
   remove it and publish again. A version that waited can also come back refused with the
